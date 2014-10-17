@@ -4,6 +4,9 @@ var fs = require('fs');
 var extend = require('extend');
 var range = require('range');
 
+// Templates, helpers and partials
+//////////////////////////////////////////////////////////////
+
 var serviceTemplateFile = fs.readFileSync(__dirname + '/templates/service.handlebars', 
   'utf-8');
 var servicePortMappingTemplateFile = fs.readFileSync(__dirname + '/templates/portMapping.handlebars',
@@ -30,6 +33,7 @@ Handlebars.registerPartial({
 Handlebars.registerHelper('memoryForSlots', function(){
   return (this.slots * this.slotSize).toString();
 });
+
 
 var Seagull = function(inheritedData, inheritedProperties) {
 
@@ -99,44 +103,17 @@ var Seagull = function(inheritedData, inheritedProperties) {
   }, this);
 
 
-  //this._serviceName = null;
-  //this._containerName = null;
-  //this._containerCommand = null;
-  //this._userOrRegistry = "docker.plaidpotion.com";
 
   this._bindAllPorts = null;
   this._primaryPort = null;
-  //this._ports = [];
-  //this._UDPPorts = [];
   this._requiredServices = [];
 
-  //this._dockerFlags = null;
   this._dataVolumeImage = null;
   this._volumeMountPoint = null;
 
   this.bindAllPorts = function() {
     this._bindAllPorts = true;
   };
-
-  // this.port = function(port) {
-  //   this._ports.push({port: port});
-  // };
-
-  // this.UDPPort = function(port) {
-  //   this._UDPPorts.push({port: port});
-  // };
-
-  // this.portRange = function(start, end) {
-  //   _.each(range(start, end), function(x) {
-  //     this._ports.push({port: x});
-  //   }, this);
-  // };
-
-  // this.UDPPortRange = function(start, end) {
-  //   _.each(range(start, end), function(x) {
-  //     this._UDPPorts.push({port: x});
-  //   }, this);
-  // };
 
   this.requireService = function(serviceName) {
     this._requiredServices.push(serviceName);
