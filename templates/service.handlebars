@@ -1,0 +1,41 @@
+[Unit]
+Description={{serviceName}}
+
+# Requirements
+Requires=etcd.service
+Requires=docker.service
+{{#requiredServices}}
+Requires={{serviceName}}.service
+{{/requiredServices}}
+# Requires={{serviceName}}-discovery.service
+
+# Dependency ordering
+After=etcd.service
+After=docker.service
+# Before={{serviceName}}-discovery.service
+
+[Service]
+# Let processes take awhile to start up (for first run Docker containers)
+TimeoutStartSec=0
+
+# Change killmode from "control-group" to "none" to let Docker remove
+# work correctly.
+KillMode=none
+
+# Get CoreOS environmental variables
+EnvironmentFile=/etc/environment
+
+# Pre-start and Start
+## Directives with "=-" are allowed to fail without consequence
+ExecStartPre=-/usr/bin/docker kill {{containerName}}
+ExecStartPre=-/usr/bin/docker rm {{containerName}}
+ExecStartPre=/usr/bin/docker pull {{userOrRegistry}}/{{imageName}}
+ExecStart=/usr/bin/docker run {{dockerFlags}} --name {{containerName}} {{> portMapping}} {{> UDPPortMapping}} {{> resources}} {{userOrRegistry}}/{{imageName}} {{{containerCommand}}}
+
+# Stop
+
+ExecStop=/usr/bin/docker stop {{containerName}}
+
+[X-Fleet]
+# Don't schedule on the same machine as other {{serviceName}} instances
+X-Conflicts={{serviceName}}.service

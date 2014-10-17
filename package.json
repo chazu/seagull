@@ -1,0 +1,23 @@
+{
+  "name": "flock-seagull",
+  "version": "0.0.0",
+  "description": "Library for generating resuable templates",
+  "main": "seagull.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "docker",
+    "devops",
+    "flock",
+    "systemd"
+  ],
+  "author": "Chazu",
+  "license": "MIT",
+  "dependencies": {
+    "extend": "^2.0.0",
+    "handlebars": "^2.0.0",
+    "lodash": "^2.4.1",
+    "range": "0.0.2"
+  }
+}
