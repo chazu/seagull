@@ -1,1 +1,1 @@
-{{#if bindAllPorts}}-P{{else}}{{#ports}} -p ${COREOS_PUBLIC_IPV4}:{{port}}:{{port}}{{/ports}} {{/if}}
+{{#if bindAllPorts}}-P{{else}}{{#ports}} -p ${COREOS_PUBLIC_IPV4}:{{value}}:{{value}}{{/ports}} {{/if}}

@@ -8,15 +8,15 @@ var range = require('range');
 //////////////////////////////////////////////////////////////
 
 var serviceTemplateFile = fs.readFileSync(__dirname + '/templates/service.handlebars', 
-  'utf-8');
+                                          'utf-8');
 var servicePortMappingTemplateFile = fs.readFileSync(__dirname + '/templates/portMapping.handlebars',
-  'utf-8');
+                                                     'utf-8');
 var serviceUDPPortMappingTemplateFile = fs.readFileSync(__dirname + '/templates/udpPortMapping.handlebars',
-  'utf-8');
+                                                        'utf-8');
 var sidekickTemplateFile = fs.readFileSync(__dirname + '/templates/sidekick.handlebars', 
-  'utf-8');
+                                           'utf-8');
 var resourceTemplateFile = fs.readFileSync(__dirname + '/templates/resources.handlebars',
-  'utf-8');
+                                           'utf-8');
 
 var serviceTemplate = Handlebars.compile(serviceTemplateFile);
 var resourceTemplate = Handlebars.compile(resourceTemplateFile)
@@ -40,6 +40,38 @@ var Seagull = function(inheritedData, inheritedProperties) {
   this._inheritedData = inheritedData;
   this.seagullProperties = [];
 
+  // Create collection - adds collection and function to add to collection -
+  // this underpins range functionality
+  this.addCollection = function(propertyName, defaultValue) {
+    defaultValue = typeof defaultValue === 'array' ? defaultValue : [];
+
+    Object.defineProperty(this, "_" + propertyName, { value: defaultValue,
+                                                      writable: true });
+
+    Object.defineProperty(this, propertyName, {
+      value: function(x) {
+        this["_" + propertyName].push({value: x});
+        if (typeof x === 'array') {
+          _.flatten(this["_" + propertyName]);
+        }
+      }
+    });
+
+    // Add the ability to specify a range of integers to add
+    Object.defineProperty(this, propertyName + "Range", {
+      value: function(start, end) {
+        _.each(range(start, end), function(x) {
+          this["_" + propertyName].push({value: x});
+        }, this);
+      }});
+
+    this.seagullProperties.push({
+      "name": propertyName,
+      "type": 'collection',
+      "defaultValue": defaultValue
+    });
+  };
+
   // Add item - adds internal property and setter
   this.addItem = function(propertyName, defaultValue) {
     Object.defineProperty(this, "_" + propertyName, { value: defaultValue,
@@ -58,62 +90,46 @@ var Seagull = function(inheritedData, inheritedProperties) {
     });
   };
 
-  // Add range - adds internal properties, setter
-  this.addRange = function(propertyName, defaultValues) {
-    Object.defineProperty(this, "_" + propertyName, {
-    value: defaultValues ? defaultValues : [] });
-
+  // Add boolean - adds internal property and setter
+  this.addBoolean = function(propertyName) {
+    Object.defineProperty(this, "_" + propertyName, { value: false,
+                                                      writable: true });
     Object.defineProperty(this, propertyName, {
-      value: function(x) {
-        var key = toString(propertyName);
-        currentValue = this["_" + propertyName].push({key:x});
-      }
-    });
-
-    Object.defineProperty(this, propertyName + "Range", {
-      value: function(start, end) {
-        _.each(range(start, end), function(x) {
-          var key = toString(propertyName);
-          this["_" + propertyName].push({key: x});
-    }, this);
-
+      value: function() {
+        this[propertyName] = true;
       }
     });
 
     this.seagullProperties.push({
       "name": propertyName,
-      "type": 'range',
-      "defaultValue": defaultValues
+      "type": 'boolean',
+      "defaultValue": false
     });
   };
 
   _.each(inheritedProperties, function(x) {
     if (!this[x.name]) {
-    switch (x.type) {
-    case "item":
-      this.addItem(x.name, x.defaultValue);      
-      break;
-    case "range":
-      this.addRange(x.name, x.defaultValue);
-      break;
-    }
+      switch (x.type) {
+      case "item":
+        this.addItem(x.name, x.defaultValue);      
+        break;
+      case "collection":
+        this.addCollection(x.name, x.defaultValue);
+        break;
+        case "boolean":
+        this.addCollection(x.name);
+        break;
+      }
     } else {
       console.log("Attempting to overwrite property: " + x.name);
     }
   }, this);
 
-
-
-  this._bindAllPorts = null;
   this._primaryPort = null;
   this._requiredServices = [];
 
   this._dataVolumeImage = null;
   this._volumeMountPoint = null;
-
-  this.bindAllPorts = function() {
-    this._bindAllPorts = true;
-  };
 
   this.requireService = function(serviceName) {
     this._requiredServices.push(serviceName);
@@ -136,7 +152,7 @@ var Seagull = function(inheritedData, inheritedProperties) {
       "containerCommand": this._containerCommand,
       "slotSize": this._slotSize,
       "slots": this._slots
-      });
+    });
   };
 
   this.makeBuilder = function() {

@@ -1,1 +1,1 @@
-{{#if bindAllPorts}}{{else}}{{#UDPPorts}} -p ${COREOS_PUBLIC_IPV4}:{{port}}:{{port}}/udp{{/UDPPorts}} {{/if}}
+{{#if bindAllPorts}}{{else}}{{#UDPPorts}} -p ${COREOS_PUBLIC_IPV4}:{{value}}:{{value}}/udp{{/UDPPorts}} {{/if}}
