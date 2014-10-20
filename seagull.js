@@ -37,7 +37,7 @@ Handlebars.registerHelper('memoryForSlots', function(){
 
 var Seagull = function(inheritedData, inheritedProperties) {
 
-  this._inheritedData = inheritedData;
+  this._inheritedData = inheritedData || {};
   this.seagullProperties = [];
 
   // Create collection - adds collection and function to add to collection -
@@ -136,7 +136,7 @@ var Seagull = function(inheritedData, inheritedProperties) {
       memo[x.name] = this["_" + x.name];
       return memo;
     }, {}, this);
-
+    console.log(generatedData);
     return extend(this._inheritedData.properties, generatedData);
     // return extend(this._inheritedData.properties, {
     //   "bindAllPorts": this._bindAllPorts,
@@ -160,10 +160,10 @@ var Seagull = function(inheritedData, inheritedProperties) {
   };
 
   this.generate = function(params) {
-    var data = this.serviceData().extend(params);
-    var res = serviceTemplate(data);
-    return res;
-  };
+    var data = extend(this.serviceData(), params);
+    var res = serviceTemplate(data)
+    return res
+  }
 
   this.generateSidekick = function() {
     var data = this.serviceData();
