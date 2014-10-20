@@ -160,7 +160,7 @@ var Seagull = function(inheritedData, inheritedProperties) {
   };
 
   this.generate = function(params) {
-    var data = this.serviceData();
+    var data = this.serviceData().extend(params);
     var res = serviceTemplate(data);
     return res;
   };
