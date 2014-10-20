@@ -125,41 +125,41 @@ var Seagull = function(inheritedData, inheritedProperties) {
     }
   }, this);
 
-  this._primaryPort = null;
-  this._requiredServices = [];
-
+  // TODO - add this shit in base
   this._dataVolumeImage = null;
   this._volumeMountPoint = null;
 
-  this.requireService = function(serviceName) {
-    this._requiredServices.push(serviceName);
-  };
-
   this.serviceData = function() {
     if (!this._inheritedData) this._inheritedData = {};
+    
+    var generatedData = _.reduce(this.seagullProperties, function(memo, x) {
+      memo[x.name] = this["_" + x.name];
+      return memo;
+    }, {}, this);
 
-    return extend(this._inheritedData.properties, {
-      "bindAllPorts": this._bindAllPorts,
-      "serviceName": this._serviceName,
-      "imageName": this._imageName,
-      "containerName": this._containerName,
-      "requiredServices": this._requiredServices,
-      "userOrRegistry": this._userOrRegistry,
-      "ports": this._ports,
-      "UDPPorts": this._UDPPorts,
-      "primaryPort": this._primaryPort || this._ports[0],
-      "dockerFlags": this._dockerFlags,
-      "containerCommand": this._containerCommand,
-      "slotSize": this._slotSize,
-      "slots": this._slots
-    });
+    return extend(this._inheritedData.properties, generatedData);
+    // return extend(this._inheritedData.properties, {
+    //   "bindAllPorts": this._bindAllPorts,
+    //   "serviceName": this._serviceName,
+    //   "imageName": this._imageName,
+    //   "containerName": this._containerName,
+    //   "requiredServices": this._requiredServices,
+    //   "userOrRegistry": this._userOrRegistry,
+    //   "ports": this._ports,
+    //   "UDPPorts": this._UDPPorts,
+    //   "primaryPort": this._primaryPort || this._ports[0],
+    //   "dockerFlags": this._dockerFlags,
+    //   "containerCommand": this._containerCommand,
+    //   "slotSize": this._slotSize,
+    //   "slots": this._slots
+    // });
   };
 
   this.makeBuilder = function() {
     return new Seagull(this.serviceData, this.seagullProperties);
   };
 
-  this.generate = function() {
+  this.generate = function(params) {
     var data = this.serviceData();
     var res = serviceTemplate(data);
     return res;
