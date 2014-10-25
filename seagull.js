@@ -136,7 +136,6 @@ var Seagull = function(inheritedData, inheritedProperties) {
       memo[x.name] = this["_" + x.name];
       return memo;
     }, {}, this);
-    console.log(generatedData);
     return extend(this._inheritedData.properties, generatedData);
     // return extend(this._inheritedData.properties, {
     //   "bindAllPorts": this._bindAllPorts,
